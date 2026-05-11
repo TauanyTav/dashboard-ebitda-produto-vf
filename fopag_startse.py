@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+import os
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -196,8 +197,6 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 # ─── LEITURA DINÂMICA DA PLANILHA ───────────────────────────────────────────
 XLSX_NAME = "Analises_Fopag_-_visao_sem_pecas_chaves.xlsx"
 XLSX_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), XLSX_NAME)
-
-import os
 
 # Hierarquia: nome do time → área
 AREA_MAP = {
