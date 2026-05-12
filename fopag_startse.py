@@ -199,6 +199,9 @@ XLSX_NAME = "Analises_Fopag_-_visao_sem_pecas_chaves.xlsx"
 XLSX_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), XLSX_NAME)
 
 # Hierarquia: nome do time → área
+# ATENÇÃO: "People" na linha 61 é um TIME dentro do Backoffice (equipe de RH/People).
+#           "People" na linha 9 é o TOTAL GERAL da folha — usado só nos KPIs e gráfico de evolução.
+#           Para não confundir, o time da linha 61 é exibido como "People & RH".
 AREA_MAP = {
     "Marketing B2C": "Marketing", "Marketing B2B": "Marketing",
     "Vendas B2C": "Vendas", "Vendas B2B": "Vendas",
@@ -210,6 +213,9 @@ AREA_MAP = {
     "Ops": "Backoffice", "Tech": "Backoffice",
     "Diretoria": "Diretoria",
 }
+
+# Nome de exibição para o time "People" (linha 61) — diferente do total geral (linha 9)
+PEOPLE_TIME_DISPLAY = "People & RH"
 
 # Times que queremos (linhas reais da planilha, ignorando totalizadores e % rows)
 TIMES_VALIDOS = set(AREA_MAP.keys())
@@ -232,6 +238,10 @@ def get_data(xlsx_path: str):
 
     records = []
     for i in range(8, len(raw)):
+        # Linha 9 = total geral — usada só nos totais, nunca como time individual
+        if i == 9:
+            continue
+
         nome = str(raw.iloc[i, 2]).strip()
         if nome not in TIMES_VALIDOS:
             continue
@@ -239,8 +249,11 @@ def get_data(xlsx_path: str):
         if not isinstance(fj, (int, float)) or pd.isna(fj):
             continue
 
+        # Renomeia "People" (time do Backoffice, linha 61) para não confundir com total geral
+        nome_display = PEOPLE_TIME_DISPLAY if nome == "People" else nome
+
         rec = {
-            "Time": nome,
+            "Time": nome_display,
             "Área": AREA_MAP[nome],
             "Fech_1T2026": raw.iloc[i, 6],
             "Orc_1T2026":  raw.iloc[i, ORC_1T_COL],
@@ -504,11 +517,13 @@ def main():
     if "Orçamento" in visao:  val_col = "Orc_1T2026"
     if "Forecast"  in visao:  val_col = "For_1T2026"
 
+    # KPIs: usa sempre a linha 9 (total real da folha) quando todos os times estão selecionados.
+    # Quando filtrado, usa a soma proporcional dos times selecionados.
     total_real = totais["Fech_1T"] if todos else df_f["Fech_1T2026"].sum()
     total_orc  = totais["Orc_1T"]  if todos else df_f["Orc_1T2026"].sum()
     total_for  = totais["For_1T"]  if todos else df_f["For_1T2026"].sum()
     total_ab   = (total_real - total_orc) / total_orc if total_orc else 0
-    total_af   = (total_for  - total_orc) / total_orc if total_orc else 0  # forecast vs orc
+    total_af   = (total_for  - total_orc) / total_orc if total_orc else 0
     maior_bu   = df_f.loc[df_f["Fech_1T2026"].idxmax(), "Time"]
     maior_val  = df_f["Fech_1T2026"].max()
     n_bu       = len(df_f)
