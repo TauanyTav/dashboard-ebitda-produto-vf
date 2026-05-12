@@ -195,7 +195,7 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
 
 # ─── LEITURA DINÂMICA DA PLANILHA ───────────────────────────────────────────
-XLSX_NAME = "Analises Fopag - visao sem peças chaves"
+XLSX_NAME = "Analises Fopag - visao sem peças chaves.xlsx"
 XLSX_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), XLSX_NAME)
 
 # Hierarquia: nome do time → área
