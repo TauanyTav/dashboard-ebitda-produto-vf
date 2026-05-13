@@ -195,7 +195,7 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
 
 # ─── LEITURA DINÂMICA DA PLANILHA ───────────────────────────────────────────
-XLSX_NAME = "Analises Fopag - visao sem peças chaves.xlsx"
+XLSX_NAME = "Analises_Fopag_-_visao_sem_peças_chaves.xlsx"
 XLSX_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), XLSX_NAME)
 
 # Hierarquia: nome do time → área
@@ -222,8 +222,8 @@ TIMES_VALIDOS = set(AREA_MAP.keys())
 
 MESES_TODOS = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
 
-@st.cache_data(show_spinner=False)
-def get_data(xlsx_path: str):
+@st.cache_data(show_spinner=False, ttl=300)
+def get_data(xlsx_path: str, _mtime: float = 0):
     raw = pd.read_excel(xlsx_path, sheet_name="Breakdown Alocação de Despesas", header=None)
 
     # Colunas conforme planilha:
@@ -483,7 +483,7 @@ def main():
             st.rerun()
         return
 
-    df, totais = get_data(XLSX_PATH)
+    df, totais = get_data(XLSX_PATH, _mtime=os.path.getmtime(XLSX_PATH))
 
     # ── Sidebar ──────────────────────────────────────────────────────────────
     with st.sidebar:
